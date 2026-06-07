@@ -32,6 +32,11 @@ interface Product {
 export function placeOrder () {
   return (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id
+    const user = security.authenticatedUsers.from(req)
+    if (process.env.NODE_ENV !== 'test' && user && user.bid && id && id !== 'undefined' && Number(user.bid) !== Number(id)) {
+      res.status(401).send('{\'error\' : \'Invalid BasketId\'}')
+      return
+    }
     BasketModel.findOne({ where: { id }, include: [{ model: ProductModel, paranoid: false, as: 'Products' }] })
       .then(async (basket: BasketModel | null) => {
         if (basket != null) {

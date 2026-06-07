@@ -357,11 +357,13 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   app.use('/api/BasketItems', security.isAuthorized())
   app.use('/api/BasketItems/:id', security.isAuthorized())
   /* Feedbacks: GET allowed for feedback carousel, POST allowed in order to provide feedback without being logged in */
-  app.use('/api/Feedbacks/:id', security.isAuthorized())
-  /* Users: Only POST is allowed in order to register a new user */
-  app.get('/api/Users', security.isAuthorized())
-  app.route('/api/Users/:id')
+  app.route('/api/Feedbacks/:id')
     .get(security.isAuthorized())
+    .delete(security.isAuthorized(), security.isAdmin())
+  /* Users: Only POST is allowed in order to register a new user */
+  app.get('/api/Users', security.isAuthorized(), security.isAdmin())
+  app.route('/api/Users/:id')
+    .get(security.isAuthorized(), security.isAdmin())
     .put(security.denyAll())
     .delete(security.denyAll())
   /* Products: Only GET is allowed in order to view products */ // vuln-code-snippet neutral-line changeProductChallenge
@@ -602,8 +604,18 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   app.get('/rest/basket/:id', utils.asyncHandler(retrieveBasket()))
   app.post('/rest/basket/:id/checkout', placeOrder())
   app.put('/rest/basket/:id/coupon/:coupon', utils.asyncHandler(applyCoupon()))
-  app.get('/rest/admin/application-version', utils.asyncHandler(retrieveAppVersion()))
-  app.get('/rest/admin/application-configuration', utils.asyncHandler(retrieveAppConfiguration()))
+  app.get(
+    '/rest/admin/application-version',
+    security.isAuthorized(),
+    security.isAdmin(),
+    utils.asyncHandler(retrieveAppVersion())
+  )
+  app.get(
+    '/rest/admin/application-configuration',
+    security.isAuthorized(),
+    security.isAdmin(),
+    utils.asyncHandler(retrieveAppConfiguration())
+  )
   app.get('/rest/repeat-notification', utils.asyncHandler(repeatNotification()))
   app.get('/rest/continue-code', utils.asyncHandler(continueCode()))
   app.get('/rest/continue-code-findIt', utils.asyncHandler(continueCodeFindIt()))

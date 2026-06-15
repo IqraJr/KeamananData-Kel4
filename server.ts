@@ -342,7 +342,7 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   app.enable('trust proxy')
   app.use('/rest/user/reset-password', rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 10,
+    max: 3,
     message: 'Too many login attempts from this IP, please try again after 5 minutes',
     keyGenerator ({ headers, ip }: { headers: any, ip: any }) { return headers['X-Forwarded-For'] ?? ip } // vuln-code-snippet vuln-line resetPasswordMortyChallenge
   }))

@@ -596,7 +596,7 @@ function configureApp (app: ReturnType<typeof express>, seq: typeof sequelize) {
   /* Custom Restful API */
   app.post('/rest/user/login', rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 100,
+    max: 10,
     message: 'Too many login attempts from this IP, please try again after 5 minutes',
     keyGenerator ({ headers, ip }: { headers: any, ip: any }) { return headers['X-Forwarded-For'] ?? ip } // vuln-code-snippet vuln-line resetPasswordMortyChallenge
   }),login())  
